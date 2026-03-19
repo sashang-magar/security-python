@@ -3,7 +3,7 @@ def encrypt():
     key_text = input('\n Enter the key text:')
     encrypt_text = ''
     key_index = 0
-    if char in plain_text: 
+    for char in plain_text: 
         if char.isalpha():
             p = ord(char) -97
             k = ord(key_text[key_index % len(key_text)]) - 97
