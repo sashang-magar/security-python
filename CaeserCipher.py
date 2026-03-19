@@ -11,12 +11,12 @@ def encrypt(shift:int) -> str:
     
 
 def decrypt(shift:int) -> str: 
-    encrypt_text :str = input('\n Enter decrypt text:')
+    cipher_text :str = input('\n Enter decrypt text:')
     plain_text:str = ''
-    for charac in encrypt_text:
+    for charac in cipher_text:
         if charac.isalpha():
             base = ord('A') if charac.isupper() else ord('a')
-            plain_text += chr(((ord(charac) + base - shift) % 26)+ base)
+            plain_text += chr(((ord(charac) - base - shift) % 26)+ base)
         else:
             plain_text += charac    
     return plain_text 
