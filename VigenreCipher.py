@@ -11,12 +11,29 @@ def encrypt():
             new_text = (p+k) % 26
             encrypt_text += chr(new_text +97)
             key_index +=1
-
         else:
             encrypt_text += char
 
     print("\n Encrypted text:", encrypt_text)
     return encrypt_text        
+
+def decrypt():
+    cipher_text = input('\n Enter the cipher text:')
+    key_text = input('\n Enter the key text:')
+    decrypt_text = '' 
+    key_index = 0
+
+    for char in cipher_text:
+        if char.isalpha():
+            p = ord(char) - 97
+            k = ord(key_text[key_index % len(key_text)]) - 97
+            new_text = (p-k) % 26
+            decrypt_text +=  chr(new_text +97)
+            key_index +=1
+        else:
+            decrypt_text +=char    
+    print(decrypt_text)
+    return decrypt_text        
 
 def main() -> None :
     while True:
@@ -29,7 +46,7 @@ def main() -> None :
         if choice == '1':
             encrypt()
         if choice == '2':
-            pass
+            decrypt()
         if choice == '3':
             break
 
