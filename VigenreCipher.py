@@ -11,17 +11,18 @@ def encrypt():
             new_text = (p+k) % 26
             encrypt_text += chr(new_text +97)
             key_index +=1
-        
+
         else:
             encrypt_text += char
 
-        print("Encrypted text:", encrypt_text)
+    print("\n Encrypted text:", encrypt_text)
+    return encrypt_text        
 
 def main() -> None :
     while True:
         print('\n 1. Encrypt')
-        print('\n 1. Decrypt')
-        print('\n 1. Exit')
+        print('\n 2. Decrypt')
+        print('\n 3. Exit')
 
         choice = input('Enter a option:')
 
@@ -31,3 +32,5 @@ def main() -> None :
             pass
         if choice == '3':
             break
+
+main()
