@@ -54,8 +54,5 @@ def main() -> None:
             decrypt_text = decrypt(shift)
             print(decrypt_text)
                
-
-if  __name__ == "__main__":
-    main()            
-
+main()
            
