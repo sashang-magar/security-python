@@ -87,10 +87,10 @@ def main():
         choice = input("Enter your choice: ")
 
         if choice == '1':
-            text = input("Enter the plaintext: ")
+            plain_text = input("Enter the plaintext: ")
             key = int(input("Enter the key (number of rails): "))
 
-            result = encrypt_rail_fence(text, key)
+            result = encrypt_rail_fence(plain_text, key)
             print("Encrypted text:", result)
 
         elif choice == '2':
