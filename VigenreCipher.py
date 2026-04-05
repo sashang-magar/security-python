@@ -1,6 +1,6 @@
 def encrypt():
-    plain_text = input('\n Enter the plain text:')
-    key_text = input('\n Enter the key text:')
+    plain_text = input('\n Enter the plain text:').lower()
+    key_text = input('\n Enter the key text:').lower()
     encrypt_text = ''
     key_index = 0
     for char in plain_text: 
@@ -18,8 +18,8 @@ def encrypt():
     return encrypt_text        
 
 def decrypt():
-    cipher_text = input('\n Enter the cipher text:')
-    key_text = input('\n Enter the key text:')
+    cipher_text = input('\n Enter the cipher text:').lower()
+    key_text = input('\n Enter the key text:').lower()
     decrypt_text = '' 
     key_index = 0
 
@@ -45,9 +45,11 @@ def main() -> None :
 
         if choice == '1':
             encrypt()
-        if choice == '2':
+        elif choice == '2':
             decrypt()
-        if choice == '3':
+        elif choice == '3':
             break
+        else:
+            print('invalid option')
 
 main()
