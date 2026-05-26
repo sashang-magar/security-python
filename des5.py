@@ -1,4 +1,6 @@
-# ---------- DES TABLES ----------
+# ------------------------------
+# DES TABLES (same as yours)
+# ------------------------------
 
 ip_table = [
 58,50,42,34,26,18,10,2,60,52,44,36,28,20,12,4,
@@ -48,6 +50,7 @@ ip_inverse_table = [
 33,1,41,9,49,17,57,25
 ]
 
+# S-boxes (same as yours)
 s_boxes = [
 [[14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7],
  [0,15,7,4,14,2,13,1,10,6,12,11,9,5,3,8],
@@ -89,74 +92,86 @@ s_boxes = [
  [7,11,4,1,9,12,14,2,0,6,10,13,15,3,5,8],
  [2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11]]
 ]
+# (keep exactly same as your original)
 
-# ---------- FUNCTIONS ----------
+# ------------------------------
+# UTILITY FUNCTIONS
+# ------------------------------
 
-def permute(block, table):
-    return ''.join(block[i - 1] for i in table)
+def str_to_bin(text):
+    return ''.join(format(ord(c), '08b') for c in text)[:64].ljust(64, '0')
+
+def bin_to_str(binary):
+    return ''.join(chr(int(binary[i:i+8], 2)) for i in range(0, 64, 8))
+
+def permute(bits, table):
+    return ''.join(bits[i-1] for i in table)
+
+def xor(a, b):
+    return ''.join('0' if x == y else '1' for x, y in zip(a, b))
 
 def shift_left(bits, n):
     return bits[n:] + bits[:n]
 
-def xor(a, b):
-    return ''.join('0' if i == j else '1' for i, j in zip(a, b))
+# ------------------------------
+# KEY GENERATION
+# ------------------------------
 
-def ascii_to_binary(text):
-    return ''.join(format(ord(c), '08b') for c in text)
+def generate_keys(key):
+    key_bin = str_to_bin(key)
+    key56 = permute(key_bin, pc1_table)
 
-def binary_to_ascii(binary):
-    return ''.join(chr(int(binary[i:i+8], 2)) for i in range(0, len(binary), 8))
-
-def preprocess_block(text):
-    return ascii_to_binary(text)[:64].ljust(64, '0')
-
-def generate_subkeys(key):
-    key56 = permute(key, pc1_table)
     C, D = key56[:28], key56[28:]
-    subkeys = []
+    keys = []
 
     for shift in shift_schedule:
-        C, D = shift_left(C, shift), shift_left(D, shift)
-        subkeys.append(permute(C + D, pc2_table))
+        C = shift_left(C, shift)
+        D = shift_left(D, shift)
+        keys.append(permute(C + D, pc2_table))
 
-    return subkeys
+    return keys
 
-def sbox_substitution(bits):
-    result = ""
+# ------------------------------
+# F FUNCTION
+# ------------------------------
+
+def sbox_sub(bits):
+    res = ""
     for i in range(8):
         block = bits[i*6:(i+1)*6]
         row = int(block[0] + block[5], 2)
         col = int(block[1:5], 2)
-        result += format(s_boxes[i][row][col], '04b')
-    return result
+        res += format(s_boxes[i][row][col], '04b')
+    return res
 
-def f_function(R, K):
-    return permute(
-        sbox_substitution(xor(permute(R, e_box_table), K)),
-        p_box_table
-    )
+def f(R, K):
+    return permute(sbox_sub(xor(permute(R, e_box_table), K)), p_box_table)
 
-def des_encrypt_block(pt, key):
-    block = permute(pt, ip_table)
-    L, R = block[:32], block[32:]
-    subkeys = generate_subkeys(key)
+# ------------------------------
+# ENCRYPT / DECRYPT
+# ------------------------------
 
-    for i in range(16):
-        L, R = R, xor(L, f_function(R, subkeys[i]))
+def des_process(text, key, decrypt=False, is_binary=False):
+    if not is_binary:
+        bits = permute(str_to_bin(text), ip_table)
+    else:
+        bits = permute(text, ip_table)
 
-    return permute(R + L, ip_inverse_table)
+    L, R = bits[:32], bits[32:]
 
-def des_decrypt_block(ct, key):
-    block = permute(ct, ip_table)
-    L, R = block[:32], block[32:]
-    subkeys = generate_subkeys(key)[::-1]
+    keys = generate_keys(key)
+    if decrypt:
+        keys = keys[::-1]
 
     for i in range(16):
-        L, R = R, xor(L, f_function(R, subkeys[i]))
+        L, R = R, xor(L, f(R, keys[i]))
 
-    return permute(R + L, ip_inverse_table)
+    final = permute(R + L, ip_inverse_table)
+    return final
 
-# ---------- MAIN ----------
+# ------------------------------
+# MAIN MENU
+# ------------------------------
 
 def main():
     while True:
@@ -165,39 +180,25 @@ def main():
         print("2. Decrypt")
         print("3. Exit")
 
-        choice = input("Choice: ")
+        ch = input("Enter choice: ")
 
-        if choice == '1':
+        if ch == '1':
             text = input("Plaintext (max 8 chars): ")
             key = input("Key (8 chars): ")
 
-            if len(key) != 8:
-                print("Key must be exactly 8 characters!")
-                continue
+            cipher_bin = des_process(text, key)
+            print("Cipher (binary):", cipher_bin)
 
-            pt = preprocess_block(text)
-            key_bin = preprocess_block(key)
-
-            cipher = des_encrypt_block(pt, key_bin)
-            print("Cipher (binary):", cipher)
-
-        elif choice == '2':
+        elif ch == '2':
             cipher = input("Cipher (64-bit binary): ")
             key = input("Key (8 chars): ")
 
-            if len(key) != 8:
-                print("Key must be exactly 8 characters!")
-                continue
+            plain_bin = des_process(cipher, key, decrypt=True, is_binary=True)
+            print("Decrypted:", bin_to_str(plain_bin))
 
-            key_bin = preprocess_block(key)
-            plain = des_decrypt_block(cipher, key_bin)
-
-            print("Decrypted:", binary_to_ascii(plain).strip('\x00'))
-
-        elif choice == '3':
+        elif ch == '3':
             break
-
         else:
-            print("Invalid choice")
+            print("Invalid!")
 
 main()
