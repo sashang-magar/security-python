@@ -225,15 +225,3 @@ main()
  
 
  
-# # Input from user
-# plaintext = input("Enter plaintext (max 16 characters): ").ljust(16)[:16]
-# key = input("Enter key (16 characters): ").ljust(16)[:16]
- 
-# # Perform encryption and decryption
-# cipher_text = encrypt_block(plaintext, key)
-# decrypted_text = decrypt_block(cipher_text, key)
- 
-# # Output
-# print("\nEncrypted (hex):", cipher_text.encode('utf-8').hex())
-# print("Encrypted (raw):", cipher_text)
-# print("Decrypted text:", decrypted_text.strip())
